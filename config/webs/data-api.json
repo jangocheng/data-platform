@@ -1,0 +1,12 @@
+{
+  "MysqlNode": "mysql:3306",
+  "MysqlDb": "",
+  "MysqlUser": "",
+  "MysqlPs": "",
+  "Migrate": "all",
+  "CacheNode": "redis:6379",
+  "CachePs": "",
+  "CacheDb": 0,
+  "CacheExpire": 3600,
+  "LogPath": "/opt/prod/data-api.log"
+}

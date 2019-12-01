@@ -1,0 +1,8 @@
+{
+  "MysqlNode": "mysql:3306",
+  "MysqlDb": "",
+  "MysqlUser": "",
+  "MysqlPs": "",
+  "Migrate": "all",
+  "LogPath": "/opt/prod/data-source.log"
+}

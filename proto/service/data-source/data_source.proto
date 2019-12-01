@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package go.micro.srv.data_source;
+
+service DataSourceService {
+	rpc QueryData(QueryDataRequest) returns (QueryDataResponse) {}
+	rpc QueryParams(QueryParamsRequest) returns (QueryParamsResponse) {}
+}
+
+
+message QueryDataRequest {
+	string ds_type = 1;
+	string ds_code = 2;
+	string params = 3;
+	string raw_data = 4;
+	string _parent_swift_number = 5;
+}
+
+message QueryDataResponse {
+	int32  status = 1;
+	string message = 2;
+	string result = 3;
+	int32  cost_time = 4;
+}
+
+
+message QueryParamsRequest {
+	string ds_type = 1;
+	string ds_code = 2;
+	string _parent_swift_number = 5;
+}
+
+message Params {
+	map<string, string> params = 1;
+	repeated string must = 2;
+}
+
+message QueryParamsResponse {
+	int32 status = 1;
+	string message = 2;
+	Params params = 3;
+	int32  cost_time = 4;
+}

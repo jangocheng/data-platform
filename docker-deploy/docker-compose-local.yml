@@ -1,0 +1,145 @@
+version: '3'
+services:
+  consul:
+    image: consul
+    container_name: consul-contain
+    hostname: "consul"
+    ports:
+      - "8300:8300"
+      - "8400:8400"
+      - "8500:8500"
+    networks:
+      - docker-deploy_data-platform
+    restart: always
+    environment:
+      CONSUL_LOCAL_CONFIG: '{"skip_leave_on_interrupt": true}'
+      CONSUL_BIND_INTERFACE: 'eth0'
+      MYSQL_DATABASE: data-platform
+      MYSQL_USER: bairong
+      MYSQL_PASSWORD: bairong
+    command: "docker-entrypoint.sh agent -dev -client=0.0.0.0"
+
+  image: data-platform-admin
+    container_name: data-platform-admin-contain
+    ports:
+      - "8800:8800"
+    restart: always
+    networks:
+      - docker-deploy_data-platform
+    volumes:
+      - ./config/admin/db_setting.py:/opt/prod/data_platform_admin/data_platform_admin/db_setting.py
+      - ./logs/admin/:/opt/prod/data_platform_admin/
+    command: "cd /opt/data_platform_admin && nohup python manage.py runserver --insecure 8800 >> admin.log 2>&1 &"
+
+  micro-api:
+    image: micro-client
+    container_name: micro-api
+    ports:
+      - "8080:8080"
+    networks:
+      - docker-deploy_data-platform
+    depends_on:
+      - consul
+    restart: always
+    links:
+      - consul
+    command: "bin/bash -c 'source /etc/profile && micro --registry=consul --registry_address=consul:8500 api --handler=api'"
+
+  micro-web:
+    image: micro-client
+    container_name: micro-web
+    ports:
+      - "8082:8082"
+    networks:
+      - docker-deploy_data-platform
+    depends_on:
+      - consul
+    restart: always
+    links:
+      - consul
+    command: "bin/bash -c 'source /etc/profile && micro --registry=consul --registry_address=consul:8500 web'"
+
+  data-source:
+    image: data-platform-env
+    container_name: data-source-contain
+    networks:
+      - docker-deploy_data-platform
+    links:
+      - consul
+    restart: always
+    depends_on:
+      - consul
+    volumes:
+      - ./bin/data-source:/opt/gopath/bin/data-source
+      - ./config/services/data-source.json:/opt/gopath/bin/data-source.json
+      - ./logs/data-source:/opt/prod
+    command: "/bin/bash -c 'source /etc/profile && cd /opt/gopath/bin && ./data-source --registry=consul --registry_address=consul:8500 -f data-source.json'"
+
+  data-source-api:
+    image: data-platform-env
+    container_name: data-source-api-contain
+    networks:
+      - docker-deploy_data-platform
+    links:
+      - consul
+    depends_on:
+      - consul
+    restart: always
+    volumes:
+      - ./bin/data-source-api:/opt/gopath/bin/data-source-api
+      - ./config/apis/data-source-api.json:/opt/gopath/bin/data-source-api.json
+      - ./logs/data-source-api:/opt/prod
+    command: "/bin/bash -c 'source /etc/profile && cd /opt/gopath/bin && ./data-source-api --registry=consul --registry_address=consul:8500 -f data-source-api.json'"
+
+  data-api:
+    image: data-platform-env
+    container_name: data-api-contain
+    networks:
+      - docker-deploy_data-platform
+    links:
+      - consul
+    depends_on:
+      - consul
+    restart: always
+    volumes:
+      - ./bin/data-api:/opt/gopath/bin/data-api
+      - ./config/webs/data-api.json:/opt/gopath/bin/data-api.json
+      - ./logs/data-api:/opt/prod
+    command: "/bin/bash -c 'source /etc/profile && cd /opt/gopath/bin && ./data-api --registry=consul --registry_address=consul:8500 -f data-api.json'"
+
+  data-derive:
+    image: data-platform-env
+    container_name: data-derive-contain
+    networks:
+      - docker-deploy_data-platform
+    links:
+      - consul
+    depends_on:
+      - consul
+    restart: always
+    volumes:
+      - ./bin/data-derive:/opt/gopath/bin/data-derive
+      - ./config/webs/data-derive.json:/opt/gopath/bin/data-derive.json
+      - ./logs/data-derive:/opt/prod
+    command: "/bin/bash -c 'source /etc/profile && cd /opt/gopath/bin && ./data-derive --registry=consul --registry_address=consul:8500 -f data-derive.json'"
+
+  data-proxy:
+    image: data-platform-env
+    container_name: data-proxy-contain
+    networks:
+      - docker-deploy_data-platform
+    restart: always
+    links:
+    - consul
+    ports:
+      - 8084:8080
+    volumes:
+      - ./bin/data-proxy:/opt/gopath/bin/data-proxy
+      - ./conf:/opt/gopath/bin/conf
+      - ./config/data-proxy/data-proxy.json:/opt/gopath/bin/data-proxy.json
+      - ./logs/data-proxy:/opt/prod
+    command: "/bin/bash -c 'source /etc/profile && cd /opt/gopath/bin && ./data-proxy ./data-proxy.json'"
+
+networks:
+  docker-deploy_data-platform:
+    external: true

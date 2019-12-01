@@ -1,0 +1,34 @@
+{
+  "RedisNode": "",
+  "RedisPs": "",
+  "RedisDb": 5,
+
+  "BairongHost": "",
+  "BairongLoginPath": "",
+  "BairongUserName": "",
+  "BairongPassword": "",
+
+  "BairongBizHost": "",
+  "BairongBizApiPath": "",
+  "BairongBizDerivePath": "",
+
+  "PlatformHost": "",
+  "PlatformApiPath": "/data-api/data/queryApi",
+  "PlatformDerivePath": "/data-derive/data/queryDeriveSet",
+
+  "StrategyHost": "",
+  "StrategyListUrl": "",
+  "StrategyStartUrl": "",
+
+  "PostLoanHost": "",
+  "PostLoanListUrl": "",
+  "PostLoanStartUrl": "",
+
+  "NeedCacheId": [],
+
+  "LogPath": "/opt/prod/data-proxy.log",
+
+  "DefaultApiCode": "",
+
+  "Debug": true
+}

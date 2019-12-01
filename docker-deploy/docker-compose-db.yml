@@ -1,0 +1,34 @@
+version: '3'
+services:
+  mysql:
+    image: mysql
+    container_name: mysql-contain
+    hostname: "mysql"
+    ports:
+      - "3306:3306"
+    networks:
+      - data-platform
+    restart: always
+    volumes:
+      - ./data/mysql/:/var/lib/mysql/
+    environment:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+    command: "docker-entrypoint.sh --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+
+  redis:
+    image: redis
+    container_name: redis-contain
+    hostname: "redis"
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - data-platform
+    command: "redis-server"
+
+networks:
+  data-platform:
+    driver: bridge
